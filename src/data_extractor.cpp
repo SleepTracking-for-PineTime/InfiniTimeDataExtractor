@@ -6,7 +6,7 @@
 #include <chrono>
 #include <sstream>
 
-void DataWriteLoop(CSVHandler &csv, PineTimeCommunicator &communicator, bool &can_run, int loop_delay)
+void DataWriteLoop(CSVHandler &csv, PineTimeCommunicator &communicator, bool &can_run, std::string file_name, int loop_delay)
 {
     auto time = std::chrono::system_clock::now();
     while (can_run)
@@ -23,17 +23,20 @@ void DataWriteLoop(CSVHandler &csv, PineTimeCommunicator &communicator, bool &ca
             std::to_string(motion_values[2]),
             std::to_string(communicator.GetBatteryLevelValue())
         };
-        csv.AppendCSVLine("data.csv", data_line);
+        csv.AppendCSVLine(file_name, data_line);
         std::this_thread::sleep_for(std::chrono::seconds(loop_delay));
     }
 }
 
 int main(int argc, char** argv)
 {
-    int data_write_loop_delay = 1;
+    std::string file_name = "data.csv";
     if (argc > 1)
-        data_write_loop_delay = argv[1][0] - '0';
-    std::cout << data_write_loop_delay << std::endl;
+        file_name = argv[1];
+
+    int data_write_loop_delay = 1;
+    if (argc > 2)
+        data_write_loop_delay = argv[2][0] - '0';
 
     PineTimeCommunicator communicator;
     if (1 == communicator.ConnectToPineTime())
@@ -42,10 +45,10 @@ int main(int argc, char** argv)
 
     CSVHandler csv;
     std::vector<std::string> first_line {"Time", "Heartrate", "MotionX", "MotionY", "MotionZ", "Battery Level"};
-    csv.AppendCSVLine("data.csv", first_line);
+    csv.AppendCSVLine(file_name, first_line);
     
     bool can_run = true;
-    std::thread data_write_loop(DataWriteLoop, std::ref(csv), std::ref(communicator), std::ref(can_run), data_write_loop_delay);
+    std::thread data_write_loop(DataWriteLoop, std::ref(csv), std::ref(communicator), std::ref(can_run), file_name, data_write_loop_delay);
 
     while (true)
     {
