@@ -48,7 +48,9 @@ int PineTimeCommunicator::ConnectToPineTime(int scan_time_ms)
 uint8_t PineTimeCommunicator::GetHeartRateValue()
 {
     SimpleBLE::ByteArray heartrate_data = pinetime.read(HEARTRATE_SERVICE, HEARTRATE_UUID);
-    return uint8_t(heartrate_data[1]); // see https://github.com/InfiniTimeOrg/InfiniTime/blob/main/doc/ble.md#heart-rate
+
+    // see https://github.com/InfiniTimeOrg/InfiniTime/blob/main/doc/ble.md#heart-rate
+    return uint8_t(heartrate_data[1]);
 }
 
 std::array<int16_t, 3> PineTimeCommunicator::GetMotionValues()
@@ -66,7 +68,8 @@ uint8_t PineTimeCommunicator::GetBatteryLevelValue()
 {
     SimpleBLE::ByteArray battery_data = pinetime.read(BATTERY_SERVICE, BATTERY_UUID);
 
-    return uint8_t(battery_data[0]); // see https://github.com/InfiniTimeOrg/InfiniTime/blob/main/doc/ble.md#battery-level
+    // see https://github.com/InfiniTimeOrg/InfiniTime/blob/main/doc/ble.md#battery-level
+    return uint8_t(battery_data[0]);
 }
 
 void PineTimeCommunicator::DisconnectFromPineTime()

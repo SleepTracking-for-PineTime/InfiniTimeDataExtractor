@@ -1,8 +1,7 @@
 #include "pinetime_communicator.hpp"
+#include "csv_handler.hpp"
 
-#include <simpleble/SimpleBLE.h>
 #include <iostream>
-#include <cstring>
 #include <thread>
 #include <chrono>
 
@@ -11,6 +10,10 @@ int main(int argc, char** argv)
    PineTimeCommunicator communicator;
    if (1 == communicator.ConnectToPineTime())
       return 1;
+
+   CSVHandler csv;
+   std::vector<std::string> first_line {"Time", "Heartrate", "MotionX", "MotionY", "MotionZ", "Battery Level"};
+   csv.AppendCSVLine("test.csv", first_line);
 
    for (size_t i = 0; i < 5; i++)
    {
