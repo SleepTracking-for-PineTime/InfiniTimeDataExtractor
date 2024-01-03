@@ -55,10 +55,18 @@ std::array<int16_t, 3> PineTimeCommunicator::GetMotionValues()
 {
     SimpleBLE::ByteArray motion_data = pinetime.read(MOTION_SERVICE, MOTION_UUID);
 
+    // see https://github.com/InfiniTimeOrg/InfiniTime/blob/main/doc/MotionService.md
     std::array<int16_t, 3> values;
     std::memcpy(values.data(), motion_data.data(), sizeof(int16_t) * values.size());
 
     return values;
+}
+
+uint8_t PineTimeCommunicator::GetBatteryLevelValue()
+{
+    SimpleBLE::ByteArray battery_data = pinetime.read(BATTERY_SERVICE, BATTERY_UUID);
+
+    return uint8_t(battery_data[0]); // see https://github.com/InfiniTimeOrg/InfiniTime/blob/main/doc/ble.md#battery-level
 }
 
 void PineTimeCommunicator::DisconnectFromPineTime()

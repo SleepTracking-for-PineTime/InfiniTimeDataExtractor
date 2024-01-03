@@ -19,7 +19,9 @@ int main(int argc, char** argv)
       std::array<int16_t, 3> motion_values = communicator.GetMotionValues();
       std::cout << "X Value: " << motion_values[0] <<
       " | Y Value: " << motion_values[1] <<
-      " | Z Value: " << motion_values[2] << "\n\n";
+      " | Z Value: " << motion_values[2] << "\n";
+
+      std::cout << "Battery Level: " << unsigned(communicator.GetBatteryLevelValue()) << "\n\n";
 
       if (4 == i)
          break;
