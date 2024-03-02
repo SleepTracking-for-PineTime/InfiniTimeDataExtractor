@@ -18,7 +18,7 @@ src/pinetime_communicator.cpp src/csv_handler.cpp
 target_link_libraries(extracting_values_test simpleble::simpleble)
 target_link_libraries(extracting_values_test Threads::Threads)
 
-add_executable(data_extractor src/data_extractor.cpp
-src/pinetime_communicator.cpp src/csv_handler.cpp)
+add_executable(data_extractor src/main.cpp
+src/data_extractor.cpp src/pinetime_communicator.cpp src/csv_handler.cpp)
 target_link_libraries(data_extractor simpleble::simpleble)
 target_link_libraries(data_extractor Threads::Threads)
