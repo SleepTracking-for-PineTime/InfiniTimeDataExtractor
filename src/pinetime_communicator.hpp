@@ -11,6 +11,7 @@ public:
 
     int ConnectToPineTime(int scan_time_ms = 1000);
     void DisconnectFromPineTime();
+    bool IsPineTimeConnected();
     uint8_t GetHeartRateValue();
     std::array<int16_t, 3> GetMotionValues();
     uint8_t GetBatteryLevelValue();
@@ -30,4 +31,6 @@ private:
     SimpleBLE::Peripheral pinetime;
 
     SimpleBLE::Adapter GetBluetoothAdapter();
+
+    bool is_connected = false;
 };

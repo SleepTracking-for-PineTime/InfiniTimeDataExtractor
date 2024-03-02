@@ -41,8 +41,14 @@ int PineTimeCommunicator::ConnectToPineTime(int scan_time_ms)
     }
 
     pinetime.connect();
+    is_connected = true;
 
     return 0;
+}
+
+bool PineTimeCommunicator::IsPineTimeConnected()
+{
+    return is_connected;
 }
 
 uint8_t PineTimeCommunicator::GetHeartRateValue()
@@ -75,6 +81,7 @@ uint8_t PineTimeCommunicator::GetBatteryLevelValue()
 void PineTimeCommunicator::DisconnectFromPineTime()
 {
     pinetime.disconnect();
+    is_connected = false;
 }
 
 SimpleBLE::Adapter PineTimeCommunicator::GetBluetoothAdapter()
