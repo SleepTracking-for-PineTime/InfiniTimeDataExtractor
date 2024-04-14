@@ -56,9 +56,6 @@ void DataExtractor::EndDataExtraction()
 void DataExtractor::InitCSVHandler()
 {
     csv_handler.reset(new CSVHandler);
-
-    std::vector<std::string> first_line {"Time", "Heartrate", "MotionX", "MotionY", "MotionZ", "Battery Level"};
-    csv_handler->AppendCSVLine(file_name, first_line);
 }
 
 int DataExtractor::InitPineTimeCommunicator()
@@ -67,6 +64,9 @@ int DataExtractor::InitPineTimeCommunicator()
 
     if (1 == communicator->ConnectToPineTime())
       return 1;
+    
+    std::vector<std::string> first_line {"Time", "Heartrate", "MotionX", "MotionY", "MotionZ", "Battery Level", "Sleep Stage"};
+    csv_handler->AppendCSVLine(file_name, first_line);
     
     std::cout << "Connected to PineTime!\nData is now being written (to exit write 'quit')...\n>> ";
 
@@ -85,7 +85,8 @@ void DataExtractor::WriteData()
         std::to_string(motion_values[0]),
         std::to_string(motion_values[1]),
         std::to_string(motion_values[2]),
-        std::to_string(communicator->GetBatteryLevelValue())
+        std::to_string(communicator->GetBatteryLevelValue()),
+        std::to_string(communicator->GetSleepStage())
     };
     csv_handler->AppendCSVLine(file_name, data_line);
     std::this_thread::sleep_for(std::chrono::seconds(data_write_loop_delay));

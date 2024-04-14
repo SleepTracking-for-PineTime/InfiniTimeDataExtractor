@@ -15,6 +15,7 @@ public:
     uint8_t GetHeartRateValue();
     std::array<int16_t, 3> GetMotionValues();
     uint8_t GetBatteryLevelValue();
+    uint8_t GetSleepStage();
 
 private:
     const std::string INFINITIME_IDENTIFIER = "InfiniTime";
@@ -27,6 +28,9 @@ private:
 
     const SimpleBLE::BluetoothUUID BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
     const SimpleBLE::BluetoothUUID BATTERY_UUID = "00002a19-0000-1000-8000-00805f9b34fb";
+
+    const SimpleBLE::BluetoothUUID SLEEP_SERVICE = "00060000-78fc-48fe-8e23-433b3a1942d0";
+    const SimpleBLE::BluetoothUUID SLEEP_UUID = "00060001-78fc-48fe-8e23-433b3a1942d0";
 
     SimpleBLE::Peripheral pinetime;
 

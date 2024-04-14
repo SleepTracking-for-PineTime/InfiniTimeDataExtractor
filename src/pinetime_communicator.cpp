@@ -78,6 +78,13 @@ uint8_t PineTimeCommunicator::GetBatteryLevelValue()
     return uint8_t(battery_data[0]);
 }
 
+uint8_t PineTimeCommunicator::GetSleepStage()
+{
+    SimpleBLE::ByteArray sleep_stage_data = pinetime.read(SLEEP_SERVICE, SLEEP_UUID);
+
+    return (sleep_stage_data[0]);
+}
+
 void PineTimeCommunicator::DisconnectFromPineTime()
 {
     pinetime.disconnect();
