@@ -20,18 +20,20 @@ if __name__ == "__main__":
     dt = np.array([datetime.datetime.fromtimestamp(x, datetime.timezone.utc) for x in data['Time']])
 
     if args.battery:
-        fig = plt.figure(figsize=(12, 12))
-        gs = fig.add_gridspec(3, 1)
+        fig = plt.figure(figsize=(12, 8))
+        gs = fig.add_gridspec(4, 1)
         ax1 = fig.add_subplot(gs[0, :])
         ax2 = fig.add_subplot(gs[1, :], sharex=ax1)
         ax3 = fig.add_subplot(gs[2, :], sharex=ax1)
-        axes = [ax1, ax2, ax3]
+        ax4 = fig.add_subplot(gs[3, :], sharex=ax1)
+        axes = [ax1, ax2, ax3, ax4]
     else:
         fig = plt.figure(figsize=(12, 8))
-        gs = fig.add_gridspec(2, 1)
+        gs = fig.add_gridspec(3, 1)
         ax1 = fig.add_subplot(gs[0, :])
         ax2 = fig.add_subplot(gs[1, :], sharex=ax1)
-        axes = [ax1, ax2]
+        ax4 = fig.add_subplot(gs[2, :], sharex=ax1)
+        axes = [ax1, ax2, ax4]
     xfmt = md.DateFormatter('%Y-%m-%d %H:%M:%S')
 
     for accel_axis in ['X', 'Y', 'Z']:
@@ -48,6 +50,9 @@ if __name__ == "__main__":
     if args.battery:
         ax3.plot(dt, data['Battery_Level'])
         ax3.set_ylabel("Battery level [%]")
+    
+    ax4.plot(dt, data['Sleep_Stage'])
+    ax4.set_ylabel("Sleep stage")
 
     for ax in axes:
         ax.set_xlabel("Date/time")
