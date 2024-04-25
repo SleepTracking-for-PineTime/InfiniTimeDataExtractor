@@ -2,6 +2,7 @@
 
 #include <simpleble/SimpleBLE.h>
 #include <array>
+#include <functional>
 
 class PineTimeCommunicator
 {
@@ -10,12 +11,13 @@ public:
     ~PineTimeCommunicator();
 
     int ConnectToPineTime(int scan_time_ms = 1000);
+    void SetCallbacks(std::function<void(std::array<int16_t, 3>)> motion_callback,
+                      std::function<void(uint8_t)> heartrate_callback,
+                      std::function<void(uint8_t)> battery_callback,
+                      std::function<void(uint8_t)> sleep_callback);
+    void EnableNotifications();
     void DisconnectFromPineTime();
     bool IsPineTimeConnected();
-    uint8_t GetHeartRateValue();
-    std::array<int16_t, 3> GetMotionValues();
-    uint8_t GetBatteryLevelValue();
-    uint8_t GetSleepStage();
 
 private:
     const std::string INFINITIME_IDENTIFIER = "InfiniTime";
@@ -37,4 +39,9 @@ private:
     SimpleBLE::Adapter GetBluetoothAdapter();
 
     bool is_connected = false;
+    bool notifications_enabled = false;
+    std::function<void(std::array<int16_t, 3>)> motion_handler;
+    std::function<void(uint8_t)> heartrate_handler;
+    std::function<void(uint8_t)> battery_handler;
+    std::function<void(uint8_t)> sleep_handler;
 };

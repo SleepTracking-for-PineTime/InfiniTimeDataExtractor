@@ -24,9 +24,13 @@ private:
     void InitCSVHandler();
     int InitPineTimeCommunicator();
     void CommandLoop();
-    void WriteData();
-    void DataWriteLoop();
-    void AttemptReconnect();
+    void WriteMotion(std::array<int16_t, 3> motion_values);
+    void WriteHeartrate(uint8_t heartrate);
+    void WriteBattery(uint8_t battery);
+    void WriteSleep(uint8_t sleep);
+    // void WriteData();
+    // void DataWriteLoop();
+    // void AttemptReconnect();
 
     std::shared_ptr<CSVHandler> csv_handler;
     std::shared_ptr<PineTimeCommunicator> communicator;

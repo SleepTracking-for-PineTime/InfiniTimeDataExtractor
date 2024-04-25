@@ -40,9 +40,9 @@ void DataExtractor::CommandLoop()
 void DataExtractor::StartDataExtraction()
 {
     command_loop = std::thread(&DataExtractor::CommandLoop, this);
-    data_write_loop = std::thread(&DataExtractor::DataWriteLoop, this);
+    // data_write_loop = std::thread(&DataExtractor::DataWriteLoop, this);
     command_loop.join();
-    data_write_loop.join();
+    // data_write_loop.join();
 }
 
 void DataExtractor::EndDataExtraction()
@@ -58,79 +58,94 @@ void DataExtractor::InitCSVHandler()
     csv_handler.reset(new CSVHandler);
 }
 
+void DataExtractor::WriteMotion(std::array<int16_t, 3> motion_values)
+{
+    std::time_t current_time = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now());
+
+    std::vector<std::string> data_line {
+        std::to_string(current_time),
+        "",
+        std::to_string(motion_values[0]),
+        std::to_string(motion_values[1]),
+        std::to_string(motion_values[2]),
+        "",
+        ""
+    };
+    csv_handler->AppendCSVLine(file_name, data_line);
+}
+
+void DataExtractor::WriteHeartrate(uint8_t heartrate)
+{
+    std::time_t current_time = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now());
+
+    std::vector<std::string> data_line {
+        std::to_string(current_time),
+        std::to_string(heartrate),
+        "",
+        "",
+        "",
+        "",
+        ""
+    };
+    csv_handler->AppendCSVLine(file_name, data_line);
+}
+
+void DataExtractor::WriteBattery(uint8_t battery)
+{
+    std::time_t current_time = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now());
+
+    std::vector<std::string> data_line {
+        std::to_string(current_time),
+        "",
+        "",
+        "",
+        "",
+        std::to_string(battery),
+        ""
+    };
+    csv_handler->AppendCSVLine(file_name, data_line);
+}
+
+void DataExtractor::WriteSleep(uint8_t sleep)
+{
+    std::time_t current_time = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now());
+
+    std::vector<std::string> data_line {
+        std::to_string(current_time),
+        "",
+        "",
+        "",
+        "",
+        "",
+        std::to_string(sleep)
+    };
+    csv_handler->AppendCSVLine(file_name, data_line);
+}
+
 int DataExtractor::InitPineTimeCommunicator()
 {
     communicator.reset(new PineTimeCommunicator);
 
-    if (1 == communicator->ConnectToPineTime())
+    int ret = communicator->ConnectToPineTime();
+
+    if (1 == ret)
       return 1;
     
-    std::vector<std::string> first_line {"Time", "Heartrate", "MotionX", "MotionY", "MotionZ", "Battery Level", "Sleep Stage"};
-    csv_handler->AppendCSVLine(file_name, first_line);
-    
+    communicator->SetCallbacks(
+        [&](std::array<int16_t, 3> motion_values) {
+            WriteMotion(motion_values);
+        },
+        [&](uint8_t heartrate) { WriteHeartrate(heartrate); },
+        [&](uint8_t battery) { WriteBattery(battery); },
+        [&](uint8_t sleep) { WriteSleep(sleep); });
+
+    communicator->EnableNotifications();
+
     std::cout << "Connected to PineTime!\nData is now being written (to exit write 'quit')...\n>> ";
 
     return 0;
-}
-
-void DataExtractor::WriteData()
-{
-    std::time_t current_time = std::chrono::system_clock::to_time_t(
-        std::chrono::system_clock::now());
-    std::array<int16_t, 3> motion_values = communicator->GetMotionValues();
-
-    std::vector<std::string> data_line {
-        std::to_string(current_time),
-        std::to_string(communicator->GetHeartRateValue()),
-        std::to_string(motion_values[0]),
-        std::to_string(motion_values[1]),
-        std::to_string(motion_values[2]),
-        std::to_string(communicator->GetBatteryLevelValue()),
-        std::to_string(communicator->GetSleepStage())
-    };
-    csv_handler->AppendCSVLine(file_name, data_line);
-    std::this_thread::sleep_for(std::chrono::seconds(data_write_loop_delay));
-}
-
-void DataExtractor::DataWriteLoop()
-{
-    
-    auto time = std::chrono::system_clock::now();
-    while (command_loop_running)
-    {
-        try
-        {
-            WriteData();
-        }
-
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            std::cout << "Attempting to reconnect PineTime!\n";
-
-            // We disconnect to prevent unexpected behaviour that could occur else
-            communicator->DisconnectFromPineTime();
-            AttemptReconnect();
-        }
-    }
-}
-
-void DataExtractor::AttemptReconnect()
-{
-    uint32_t kill_count = 0;
-
-    while (kill_count != 100)
-    {
-        std::cout << "Attempt " << kill_count+1 << ": ";
-        if (0 == communicator->ConnectToPineTime(3000))
-        {
-            std::cout << "Successfully reconnected to PineTime!\n";
-            return;
-        }
-
-        kill_count++;
-    }
-
-    std::cout << "Unable to reconnect to PineTime. Exiting Program.\n";
-    std::terminate();
 }
