@@ -55,7 +55,7 @@ void DataExtractor::EndDataExtraction()
 
 void DataExtractor::InitCSVHandler()
 {
-    csv_handler.reset(new CSVHandler);
+    csv_handler.reset(new CSVHandler(file_name));
 }
 
 void DataExtractor::WriteMotion(std::array<int16_t, 3> motion_values)
@@ -72,7 +72,7 @@ void DataExtractor::WriteMotion(std::array<int16_t, 3> motion_values)
         "",
         ""
     };
-    csv_handler->AppendCSVLine(file_name, data_line);
+    csv_handler->AppendCSVLine(data_line);
 }
 
 void DataExtractor::WriteHeartrate(uint8_t heartrate)
@@ -89,7 +89,7 @@ void DataExtractor::WriteHeartrate(uint8_t heartrate)
         "",
         ""
     };
-    csv_handler->AppendCSVLine(file_name, data_line);
+    csv_handler->AppendCSVLine(data_line);
 }
 
 void DataExtractor::WriteBattery(uint8_t battery)
@@ -106,7 +106,7 @@ void DataExtractor::WriteBattery(uint8_t battery)
         std::to_string(battery),
         ""
     };
-    csv_handler->AppendCSVLine(file_name, data_line);
+    csv_handler->AppendCSVLine(data_line);
 }
 
 void DataExtractor::WriteSleep(uint8_t sleep)
@@ -123,7 +123,7 @@ void DataExtractor::WriteSleep(uint8_t sleep)
         "",
         std::to_string(sleep)
     };
-    csv_handler->AppendCSVLine(file_name, data_line);
+    csv_handler->AppendCSVLine(data_line);
 }
 
 int DataExtractor::InitPineTimeCommunicator()

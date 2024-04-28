@@ -1,19 +1,17 @@
 #include "csv_handler.hpp"
 
-#include <fstream>
-
-CSVHandler::CSVHandler()
+CSVHandler::CSVHandler(std::string file_name) :
+    csv_file(file_name, std::ios::app)
 {
 }
 
 CSVHandler::~CSVHandler()
 {
+    csv_file.close();
 }
 
-void CSVHandler::AppendCSVLine(std::string file_name, std::vector<std::string> line_content)
+void CSVHandler::AppendCSVLine(std::vector<std::string> line_content)
 {
-    std::ofstream csv_file(file_name, std::ios::app);
-    
     for (size_t i = 0; i < line_content.size(); i++)
     {
         csv_file << line_content[i];
@@ -22,6 +20,4 @@ void CSVHandler::AppendCSVLine(std::string file_name, std::vector<std::string> l
             csv_file << ",";
     }
     csv_file << std::endl;
-
-    csv_file.close();
 }
