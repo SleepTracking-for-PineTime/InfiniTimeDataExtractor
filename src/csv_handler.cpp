@@ -3,6 +3,8 @@
 CSVHandler::CSVHandler(std::string file_name) :
     csv_file(file_name, std::ios::app)
 {
+    std::vector<std::string> header {"Time", "Heartrate", "MotionX", "MotionY", "MotionZ", "Battery Level", "Sleep Stage"};
+    AppendCSVLine(header);
 }
 
 CSVHandler::~CSVHandler()
