@@ -1,7 +1,12 @@
 #include "data_extractor.hpp"
 
 DataExtractor::DataExtractor(std::string file_name, int data_write_loop_delay = 5)
-: file_name(file_name), data_write_loop_delay(data_write_loop_delay)
+: file_name(file_name),
+  data_write_loop_delay(data_write_loop_delay),
+  latest_motion_values({0, 0, 0}),
+  latest_heartrate(0),
+  latest_battery(0),
+  latest_sleep(0)
 {
 }
 
@@ -58,70 +63,19 @@ void DataExtractor::InitCSVHandler()
     csv_handler.reset(new CSVHandler(file_name));
 }
 
-void DataExtractor::WriteMotion(std::array<int16_t, 3> motion_values)
+void DataExtractor::WriteData()
 {
     std::time_t current_time = std::chrono::system_clock::to_time_t(
         std::chrono::system_clock::now());
 
     std::vector<std::string> data_line {
         std::to_string(current_time),
-        "",
-        std::to_string(motion_values[0]),
-        std::to_string(motion_values[1]),
-        std::to_string(motion_values[2]),
-        "",
-        ""
-    };
-    csv_handler->AppendCSVLine(data_line);
-}
-
-void DataExtractor::WriteHeartrate(uint8_t heartrate)
-{
-    std::time_t current_time = std::chrono::system_clock::to_time_t(
-        std::chrono::system_clock::now());
-
-    std::vector<std::string> data_line {
-        std::to_string(current_time),
-        std::to_string(heartrate),
-        "",
-        "",
-        "",
-        "",
-        ""
-    };
-    csv_handler->AppendCSVLine(data_line);
-}
-
-void DataExtractor::WriteBattery(uint8_t battery)
-{
-    std::time_t current_time = std::chrono::system_clock::to_time_t(
-        std::chrono::system_clock::now());
-
-    std::vector<std::string> data_line {
-        std::to_string(current_time),
-        "",
-        "",
-        "",
-        "",
-        std::to_string(battery),
-        ""
-    };
-    csv_handler->AppendCSVLine(data_line);
-}
-
-void DataExtractor::WriteSleep(uint8_t sleep)
-{
-    std::time_t current_time = std::chrono::system_clock::to_time_t(
-        std::chrono::system_clock::now());
-
-    std::vector<std::string> data_line {
-        std::to_string(current_time),
-        "",
-        "",
-        "",
-        "",
-        "",
-        std::to_string(sleep)
+        std::to_string(latest_heartrate),
+        std::to_string(latest_motion_values[0]),
+        std::to_string(latest_motion_values[1]),
+        std::to_string(latest_motion_values[2]),
+        std::to_string(latest_battery),
+        std::to_string(latest_sleep)
     };
     csv_handler->AppendCSVLine(data_line);
 }
@@ -134,14 +88,24 @@ int DataExtractor::InitPineTimeCommunicator()
 
     if (1 == ret)
       return 1;
-    
+
     communicator->SetCallbacks(
         [&](std::array<int16_t, 3> motion_values) {
-            WriteMotion(motion_values);
+          latest_motion_values = motion_values;
+          WriteData();
         },
-        [&](uint8_t heartrate) { WriteHeartrate(heartrate); },
-        [&](uint8_t battery) { WriteBattery(battery); },
-        [&](uint8_t sleep) { WriteSleep(sleep); });
+        [&](uint8_t heartrate) {
+          latest_heartrate = heartrate;
+          WriteData();
+        },
+        [&](uint8_t battery) {
+          latest_battery = battery;
+          WriteData();
+        },
+        [&](uint8_t sleep) {
+          latest_sleep = sleep;
+          WriteData();
+        });
 
     communicator->EnableNotifications();
 
