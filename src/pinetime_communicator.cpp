@@ -58,19 +58,24 @@ int PineTimeCommunicator::ConnectToPineTime(int scan_time_ms)
         int retries = 100;
         while (!is_connected && retries--) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            pinetime.connect();
-            is_connected = pinetime.is_connected();
+            try {
+                pinetime.connect();
+                if (notifications_enabled)
+                EnableNotifications();
+                is_connected = pinetime.is_connected();
+            } catch(const std::exception& e) {
+                // TODO: should probably not be bare exception
+                std::cerr << "error reconnecting: " << e.what() << std::endl;
+            }
         }
 
-        if (!retries) {
+        if (!is_connected) {
             std::cerr << "cannot reconnect" << std::endl;
             return;
         }
 
         std::cout << "reconnected" << std::endl;
 
-        if (notifications_enabled)
-            EnableNotifications();
     });
 
     return 0;
